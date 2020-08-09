@@ -5,6 +5,7 @@
 { config, pkgs, options, ... }:
 
 {
+  nix.buildCores = 2;
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
@@ -69,13 +70,10 @@
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-  services.xserver.layout = "us,us";
-  services.xserver.xkbVariant = ",dvorak";
   services.xserver.windowManager.xmonad = {
     enable = true;
     enableContribAndExtras = true;
   };
-  services.xserver.xkbOptions = "ctrl:swapcaps,grp:ctrl_shift_toggle";
   services.xserver.videoDrivers = [ "intel" ];
   # services.xserver.xkbOptions = "eurosign:e";
 
