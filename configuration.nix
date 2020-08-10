@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, options, ... }:
+{ config, pkgs, options, lib, ... }:
 
 {
   nix.buildCores = 2;
@@ -35,11 +35,27 @@
     gnumake gcc binutils-unwrapped ncurses5 zlib.dev weechat scrot
     gnupg dos2unix nix-serve usbutils xmobar htop fd tilix dmenu networkmanager
     mongodb mattermost-desktop mkpasswd qemu nodejs nodePackages.node2nix
-    ghostscript kate zip unzip rpmextract
+    ghostscript kate zip unzip rpmextract virtualbox
   ];
 
   services.mongodb.enable = true;
   virtualisation.docker.enable = true;
+  virtualisation.virtualbox.guest.enable = true;
+
+  # TODO: remove me after https://github.com/NixOS/nixpkgs/pull/86473 is applied
+  services.xserver.videoDrivers = lib.mkForce [ "vmware" "virtualbox" "modesetting" ];
+  systemd.services.virtualbox-resize = {
+    description = "VirtualBox Guest Screen Resizing";
+
+    wantedBy = [ "multi-user.target" ];
+    requires = [ "dev-vboxguest.device" ];
+    after = [ "dev-vboxguest.device" ];
+
+    unitConfig.ConditionVirtualization = "oracle";
+
+    serviceConfig.ExecStart = "@${config.boot.kernelPackages.virtualboxGuestAdditions}/bin/VBoxClient -fv --vmsvga";
+  };
+  fonts.fontconfig.dpi = 180;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -74,7 +90,7 @@
     enable = true;
     enableContribAndExtras = true;
   };
-  services.xserver.videoDrivers = [ "intel" ];
+  # services.xserver.videoDrivers = [ "intel" ];
   # services.xserver.xkbOptions = "eurosign:e";
 
   # Enable touchpad support.
