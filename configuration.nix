@@ -25,7 +25,7 @@
   # };
 
   # Set your time zone.
-  time.timeZone = "America/Denver";
+  time.timeZone = "America/Detroit";
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
